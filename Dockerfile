@@ -1,8 +1,9 @@
-FROM java:7u65
-MAINTAINER Lu Han <lhan@xetus.com>
+FROM sjatgutzmann/docker.centos.oraclejava8
+MAINTAINER Sven Jörns <sjatgutzmann@gmail.com>
 
 ENV VERSION 2.2.1
-
+ENV HTTP_PORT 8080
+ENV HTTPS_PORT 8443
 #
 # Go get the needed tar/jar we'll installing
 #
@@ -38,6 +39,6 @@ USER archiva
 VOLUME ["/archiva-data"]
 
 # Standard web ports exposted
-EXPOSE 8080/tcp 8443/tcp
+EXPOSE ${HTTP_PORT}/tcp ${HTTPS_PORT}/tcp
 
 ENTRYPOINT ["/run.bash"]
