@@ -1,3 +1,12 @@
+# Fork Features
+
+not implemented yet
+
+1. Using CentOS 7
+2. Using Oracle Java 8
+3. Include Postgres driver and use it
+4. configable TCP ports 
+
 # Archiva
 
 An apache archiva 2.2.1 container designed for a simple standalone deployment. Key features are:
