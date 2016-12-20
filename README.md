@@ -1,11 +1,10 @@
 # Fork Features
 
-not implemented yet
 
 1. Using CentOS 7
 2. Using Oracle Java 8
 3. Include Postgres driver and use it
-4. configable TCP ports 
+4. configable TCP ports (HTTP_PORT)
 
 # Archiva
 
@@ -13,7 +12,7 @@ An apache archiva 2.2.1 container designed for a simple standalone deployment. K
 
 1. The configuration/data is truly externalized, allowing container replacement/upgrading (`/archiva-data`)
 2. Configurable HTTPS support is included, with the ability to assign custom keystore
-3. Linked container support for mysql/mariadb using the `db` alias. 
+3. Linked container support for mysql/mariadb/postgres using the `db` alias. 
 4. Automatic installation of CA certificates into the container
 
 The configuration of the container was created following the support guide suggested by [Archiva standalone installation guide](http://archiva.apache.org/docs/2.1.1/adminguide/standalone.html).
@@ -23,7 +22,7 @@ The configuration of the container was created following the support guide sugge
 The command below will setup a running archiva container with externalized data/configuration
 
 ```
- docker run -d --name archiva -h archiva -d -p 8080:8080 -v /archiva_mnt:/archiva-data xetusoss/archiva
+ docker run -d --name archiva -h archiva -d -p 8080:8080 -v /archiva_mnt:/archiva-data sjatgutzmann/docker.centos.archiva
 ```
 
 ## Available Configuration Parameters
@@ -33,12 +32,12 @@ The command below will setup a running archiva container with externalized data/
 * `KEYSTORE_PASS`: The keystore and certificate password to use. Default is `changeit`.
 * `KEYSTORE_ALIAS`: The certificate alias to use. Default is `archiva`.
 * `CA_CERT` and `CA_CERTS_DIR`: Specify the CA cert(Or the path to dir store multiply certs) to install into system keystore.
-* `DB_TYPE`: The database type, either `mysql` or `derby`. Default is `derby`.
-* `USERS_DB_NAME`: Only used if `DB_TYPE=mysql`, the database name for the `users` db. Default is `archiva_users`.
-* `DB_USER`: Only used if `DB_TYPE=mysql`, the user to make the db connection with. Default is `archiva`.
-* `DB_PASS`: Only used if `DB_TYPE=mysql`, the db user's password. Default is `archiva`.
-* `DB_HOST`:  Only used if `DB_TYPE=mysql`, the db hostname or IP. Default is `db`.
-* `DB_PORT`:  Only used if `DB_TYPE=mysql`, the db port to connect to. Default is `3306`.
+* `DB_TYPE`: The database type, either `mysql`, `postgres` or `derby`. Default is `derby`.
+* `USERS_DB_NAME`: Only used if `DB_TYPE=mysqli or postgres`, the database name for the `users` db. Default is `archiva_users`.
+* `DB_USER`: Only used if `DB_TYPE=mysql or postgres`, the user to make the db connection with. Default is `archiva`.
+* `DB_PASS`: Only used if `DB_TYPE=mysql or postgres`, the db user's password. Default is `archiva`.
+* `DB_HOST`:  Only used if `DB_TYPE=mysql or postgres`, the db hostname or IP. Default is `db`.
+* `DB_PORT`:  Only used if `DB_TYPE=mysql or postgres`, the db port to connect to. Default is `3306`i with mysql and `5432` with postgres.
 
 ## Examples
 
@@ -47,7 +46,7 @@ Make sure /somepath/archiva_mnt exists
 
 ```
  docker run --name archiva -h archiva -d -p 443:8443\
-  -e SSL_ENABLED=true -v /somepath/archiva_mnt:/archiva-data xetusoss/archiva
+  -e SSL_ENABLED=true -v /somepath/archiva_mnt:/archiva-data sjatgutzmann/docker.centos.archiva
 ```
 #### (2) HTTPS Support (custom/assigned certificate included)
 
@@ -56,7 +55,7 @@ Copy the custom keystore in data mount under `ssl/keystoer`. The locations can b
 
 ```
  docker run --name archiva -h archiva -d -p 443:8443\
-  -e SSL_ENABLED=true -e KEYSTORE_PASS="mypass" -v /somepath/archiva_mnt:/archiva-data xetusoss/archiva
+  -e SSL_ENABLED=true -e KEYSTORE_PASS="mypass" -v /somepath/archiva_mnt:/archiva-data sjatgutzmann/docker.centos.archiva
 ```
 
 #### (3) Use a MYSQL db, with a linked container
@@ -65,18 +64,18 @@ The example below creates a archiva container with the linked mysql db. Please m
 
 ```
 docker run --name archiva -h archiva -p 443:8443\
-  -v /somepath/archiva_mnt:/archiva-data --link mysql:db -e SSL_ENABLED=true xetusoss/archiva
+  -v /somepath/archiva_mnt:/archiva-data --link mysql:db -e SSL_ENABLED=true sjatgutzmann/docker.centos.archiva
 ```
 
 #### (4) Use a MYSQL db, with an external host
 
-The example below creates a archiva container using an external db. Please make sure `archiva_users` database created first, these database name can be changed using `USERS_DB_NAME`.
+The example below creates a archiva container using an external postgres db. Please make sure `archiva_users` database created first, these database name can be changed using `USERS_DB_NAME`.
 
 ```
 docker run --name archiva -h archiva -p 443:8443\
-  -v /somepath/archiva_mnt:/archiva-data -e DB_TYPE="mysql"\
+  -v /somepath/archiva_mnt:/archiva-data -e DB_TYPE="postgres"\
   -e DB_HOST="db.example.com"-e DB_USER="SOMEUSER"\
-  -e DB_PASS="SOMEPASS" -e SSL_ENABLED=true xetusoss/archiva
+  -e DB_PASS="SOMEPASS" -e SSL_ENABLED=true sjatgutzmann/docker.centos.archiva
 ```
 
 ## The archiva-data volume

@@ -88,14 +88,25 @@ then
     SANITIZED_DB_PASS="`santizeVarForSed \"${DB_PASS:-archiva}\"`"
     SANITIZED_USERS_DB_NAME="`santizeVarForSed \"${USERS_DB_NAME:-archiva_users}\"`"
 
-    cat ${JETTY_CONF_PATH}/JETTY_DB_CONF | \
+    cat ${JETTY_CONF_PATH}/JETTY_MYSQL_DB_CONF | \
       sed "s/{{DB_HOST}}/${DB_HOST:-db}/" |\
       sed "s/{{DB_PORT}}/${DB_PORT:-3306}/" |\
       sed "s/{{USERS_DB_NAME}}/${SANITIZED_USERS_DB_NAME}/" |\
       sed "s/{{DB_USER}}/${SANITIZED_DB_USER}/" |\
       sed "s/{{DB_PASS}}/${SANITIZED_DB_PASS}/" > /tmp/.JETTY_DB_CONF
-  fi
-  if [ "$DB_TYPE" == "derby"  ]
+  elif [ "$DB_TYPE" == "postgres"  ]
+  then
+    SANITIZED_DB_USER="`santizeVarForSed \"${DB_USER:-archiva}\"`"
+    SANITIZED_DB_PASS="`santizeVarForSed \"${DB_PASS:-archiva}\"`"
+    SANITIZED_USERS_DB_NAME="`santizeVarForSed \"${USERS_DB_NAME:-archiva_users}\"`"
+
+    cat ${JETTY_CONF_PATH}/JETTY_POSTGRES_DB_CONF | \
+      sed "s/{{DB_HOST}}/${DB_HOST:-db}/" |\
+      sed "s/{{DB_PORT}}/${DB_PORT:-5432}/" |\
+      sed "s/{{USERS_DB_NAME}}/${SANITIZED_USERS_DB_NAME}/" |\
+      sed "s/{{DB_USER}}/${SANITIZED_DB_USER}/" |\
+      sed "s/{{DB_PASS}}/${SANITIZED_DB_PASS}/" > /tmp/.JETTY_DB_CONF 
+  elif [ "$DB_TYPE" == "derby"  ]
   then
     echo "$DERBY_DS_JETTY_CONF" > /tmp/.JETTY_DB_CONF
   fi
@@ -103,6 +114,9 @@ then
   sed -i '/{{JETTY_DB_CONF}}/r .JETTY_DB_CONF' jetty.xml
   sed -i '/{{JETTY_DB_CONF}}/d' jetty.xml
   rm /tmp/.JETTY_DB_CONF
+
+
+
 
   #
   # SSL configuration (optional, see readme)
@@ -155,6 +169,7 @@ then
   CA_CERTS_TO_ADD[((i++))]="$CA_CERT"
 fi
 
+OLD_IFS=$IFS
 IFS="
 "
 if [[ -n "$CA_CERTS_DIR" && -e "$CA_CERTS_DIR" ]]
@@ -173,4 +188,31 @@ do
     -storepass changeit -noprompt
 done
 
-/opt/archiva/bin/archiva console
+IFS=$OLD_IFS
+
+
+#echo "change jetty.xml with augtool"
+augtool <<AUG_COMMANDS_EOF
+set /augeas/load/Xml/incl[last()+1] /opt/archiva/conf/jetty.xml
+load
+AUG_COMMANDS_EOF
+
+ARG1=$1
+# setting default, simulation of CMD ["console"] in Dockerfile
+if [ -z ${ARG1} ]; then
+        echo -n "setting default start arg to "
+        ARG1="console"
+        echo $ARG1
+fi
+
+echo "starting this container with ${ARG1}"
+
+case "$ARG1" in
+        "console")
+		/opt/archiva/bin/archiva console
+        ;;
+        "bash")
+                echo "entering bash mode" \
+                && /bin/bash
+        ;;
+esac
