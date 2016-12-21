@@ -1,3 +1,4 @@
+#!Dockerfile
 FROM sjatgutzmann/docker.centos.oraclejava8
 MAINTAINER Sven Jörns <sjatgutzmann@gmail.com>
 
