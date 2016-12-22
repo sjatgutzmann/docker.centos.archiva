@@ -4,9 +4,9 @@
 # Archiva container bootstrap. See the readme for usage.
 #
 source /data_dirs.env
-JETTY_NEED_CONFIG=false
+JETTY_NEED_CONFIG=$DO_INIT
 DATA_PATH=/archiva-data
-JETTY_CONF_PATH=/jetty_conf
+#JETTY_CONF_PATH=/jetty_conf #from Dockfile
 
 mkdir -p ${DATA_PATH}/temp
 chown archiva:archiva ${DATA_PATH}/temp
@@ -82,7 +82,7 @@ then
   # - DB_PASS
   # - USERS_DB_NAME
   DB_TYPE=${DB_TYPE:-derby}
-  if [ "$DB_TYPE" == "mysql"  ]
+  if [ "$DB_TYPE" == "mysql" ]
   then
     SANITIZED_DB_USER="`santizeVarForSed \"${DB_USER:-archiva}\"`"
     SANITIZED_DB_PASS="`santizeVarForSed \"${DB_PASS:-archiva}\"`"
@@ -94,7 +94,7 @@ then
       sed "s/{{USERS_DB_NAME}}/${SANITIZED_USERS_DB_NAME}/" |\
       sed "s/{{DB_USER}}/${SANITIZED_DB_USER}/" |\
       sed "s/{{DB_PASS}}/${SANITIZED_DB_PASS}/" > /tmp/.JETTY_DB_CONF
-  elif [ "$DB_TYPE" == "postgres"  ]
+  elif [ "$DB_TYPE" == "postgres" ]
   then
     SANITIZED_DB_USER="`santizeVarForSed \"${DB_USER:-archiva}\"`"
     SANITIZED_DB_PASS="`santizeVarForSed \"${DB_PASS:-archiva}\"`"
@@ -106,14 +106,14 @@ then
       sed "s/{{USERS_DB_NAME}}/${SANITIZED_USERS_DB_NAME}/" |\
       sed "s/{{DB_USER}}/${SANITIZED_DB_USER}/" |\
       sed "s/{{DB_PASS}}/${SANITIZED_DB_PASS}/" > /tmp/.JETTY_DB_CONF 
-  elif [ "$DB_TYPE" == "derby"  ]
+  elif [ "$DB_TYPE" == "derby" ]
   then
     echo "$DERBY_DS_JETTY_CONF" > /tmp/.JETTY_DB_CONF
   fi
   cd /tmp
   sed -i '/{{JETTY_DB_CONF}}/r .JETTY_DB_CONF' jetty.xml
   sed -i '/{{JETTY_DB_CONF}}/d' jetty.xml
-  rm /tmp/.JETTY_DB_CONF
+  # rm /tmp/.JETTY_DB_CONF
 
 
 

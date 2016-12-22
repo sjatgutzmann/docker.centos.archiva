@@ -3,7 +3,7 @@
   <Arg>
     <New class="org.apache.tomcat.jdbc.pool.DataSource">
       <Set name="driverClassName">org.postgresql.Driver</Set>
-      <Set name="url">jdbc:postgres://{{DB_HOST}}/{{USERS_DB_NAME}}</Set>
+      <Set name="url">jdbc:postgresql://{{DB_HOST}}:{{DB_PORT}}/{{USERS_DB_NAME}}</Set>
        <Set name="name">ArchivaUsers</Set>
       <Set name="username">{{DB_USER}}</Set>
       <Set name="password">{{DB_PASS}}</Set>
@@ -27,7 +27,7 @@
   <Arg>
     <New class="org.apache.tomcat.jdbc.pool.DataSource">
       <Set name="driverClassName">org.postgresql.Driver</Set>
-      <Set name="url">jdbc:postgres://{{DB_HOST}}:{{DB_PORT}}/{{USERS_DB_NAME}}</Set>
+      <Set name="url">jdbc:postgresql://{{DB_HOST}}:{{DB_PORT}}/{{USERS_DB_NAME}}</Set>
       <Set name="username">{{DB_USER}}</Set>
       <Set name="password">{{DB_PASS}}</Set>
     </New>
